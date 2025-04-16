@@ -1,5 +1,4 @@
 import json
-import argparse
 import matplotlib.pyplot as plt
 import os
 
@@ -40,10 +39,11 @@ def visualization(log_path):
 
     plt.close()
 
-log_path = 'output/vim_tiny_patch16_224_bimambav2_final_pool_mean_abs_pos_embed_with_midclstok_div2/log_batch_size_20.txt'
-# parser = argparse.ArgumentParser()
-# parser.add_argument('--log_path', default='output/vim_tiny_patch16_224_bimambav2_final_pool_mean_abs_pos_embed_with_midclstok_div2/log_batch_size_20.txt', type=str, required=True)
-# args = parser.parse_args()
-# visualization(log_path)
+if __name__ == '__main__':
+    log_path = 'output/vim_tiny_patch16_224_bimambav2_final_pool_mean_abs_pos_embed_with_midclstok_div2/log_batch_size_20.txt'
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--log_path', default='output/vim_tiny_patch16_224_bimambav2_final_pool_mean_abs_pos_embed_with_midclstok_div2/log_batch_size_20.txt', type=str, required=True)
+    # args = parser.parse_args()
+    # visualization(log_path)
 
-visualization(log_path)
+    visualization(log_path)

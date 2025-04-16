@@ -27,7 +27,7 @@ def get_gpu_memory_used():
             encoding = "utf-8"
         )
         gpu_mem_used = output.strip().split('\n')
-        return gpu_mem_used
+        return int(gpu_mem_used[0])
     except Exception as e:
         print(f"Error fetching GPU memory: {e}")
         return 0
