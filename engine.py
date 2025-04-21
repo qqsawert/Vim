@@ -44,7 +44,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: DistillationLoss,
     header = 'Epoch: [{}]'.format(epoch)
     print_freq = 10
     
-    max_gpu_mem = 0
+    max_gpu_mem_value = 0
     
     if args.cosub:
         criterion = torch.nn.BCEWithLogitsLoss()
@@ -111,14 +111,14 @@ def train_one_epoch(model: torch.nn.Module, criterion: DistillationLoss,
         if model_ema is not None:
             model_ema.update(model)
         
-        # 在每個 batch 處理完後，取得當前 GPU 使用量
-        current_gpu_mem = get_gpu_memory_used()
-        # 更新最大值
-        max_gpu_mem_value = max(max_gpu_mem_value, current_gpu_mem)
-
-        metric_logger.update(loss=loss_value)
-        metric_logger.update(lr=optimizer.param_groups[0]["lr"])
-        metric_logger.update(max_gpu_mem=max_gpu_mem_value)
+    #   # 在每個 batch 處理完後，取得當前 GPU 使用量
+    #   current_gpu_mem = get_gpu_memory_used()
+    #   # 更新最大值
+    #   max_gpu_mem_value = max(max_gpu_mem_value, current_gpu_mem)
+    #
+    #   metric_logger.update(loss=loss_value)
+    #   metric_logger.update(lr=optimizer.param_groups[0]["lr"])
+    #   metric_logger.update(max_gpu_mem=max_gpu_mem_value)
     
 
 

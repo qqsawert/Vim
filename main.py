@@ -472,17 +472,17 @@ def main(args):
         print(f"Accuracy of the ema network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
 
         # scaling
-        scales = np.linspace(0.0, 1.0, 21)
-        ppls = []
-        for s in scales:
-            # 假設你在 Mamba block 裡把 scaling 參數取名為 dt_scaling
-            model.dt_scaling.data.fill_(s)
-            stats = evaluate(data_loader_val, model, device, amp_autocast)
-            ppls.append(math.exp(stats['loss']))
-        plt.plot(scales, ppls, marker='o')
-        plt.xlabel('s (∆t scaling)')
-        plt.ylabel('Perplexity')
-        plt.savefig(Path(args.output_dir) / 'dt_scaling_vs_ppl.png')
+    #   scales = np.linspace(0.0, 1.0, 21)
+    #   ppls = []
+    #   for s in scales:
+    #       # 假設你在 Mamba block 裡把 scaling 參數取名為 dt_scaling
+    #       model.dt_scaling.data.fill_(s)
+    #       stats = evaluate(data_loader_val, model, device, amp_autocast)
+    #       ppls.append(math.exp(stats['loss']))
+    #   plt.plot(scales, ppls, marker='o')
+    #   plt.xlabel('s (∆t scaling)')
+    #   plt.ylabel('Perplexity')
+    #   plt.savefig(Path(args.output_dir) / 'dt_scaling_vs_ppl.png')
 
         return
     
@@ -513,7 +513,7 @@ def main(args):
             checkpoint_paths = [output_dir / checkpoint_file_name]
             for checkpoint_path in checkpoint_paths:
                 utils.save_on_master({
-                    'model': model_without_ddp.state_dict(),
+                    'model': model_without_ddp.state_dict(strict=False),
                     'optimizer': optimizer.state_dict(),
                     'lr_scheduler': lr_scheduler.state_dict(),
                     'epoch': epoch,
