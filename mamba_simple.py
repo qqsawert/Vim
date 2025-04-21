@@ -52,6 +52,8 @@ class Mamba(nn.Module):
         bimamba_type="none",
         if_divide_out=False,
         init_layer_scale=None,
+        dt_scaling: float = 1.0, # scaling factor
+        **kwargs # 沒有傳入時使用預設值1.0
     ):
         factory_kwargs = {"device": device, "dtype": dtype}
         super().__init__()
@@ -67,6 +69,7 @@ class Mamba(nn.Module):
         self.if_divide_out = if_divide_out
 
         self.init_layer_scale = init_layer_scale
+        self.dt_scaling = nn.Parameter(torch.tensor(dt_scaling), requires_grad=True)  # scaling factor
         if init_layer_scale is not None:
             self.gamma = nn.Parameter(init_layer_scale * torch.ones((d_model)), requires_grad=True)
 
@@ -285,6 +288,7 @@ class Mamba(nn.Module):
             dt, B, C = torch.split(x_dbl, [self.dt_rank, self.d_state, self.d_state], dim=-1)
             dt = self.dt_proj.weight @ dt.t()
             dt = rearrange(dt, "d (b l) -> b d l", l=seqlen)
+            dt = dt * self.dt_scaling # scaling factor
             B = rearrange(B, "(b l) dstate -> b dstate l", l=seqlen).contiguous()
             C = rearrange(C, "(b l) dstate -> b dstate l", l=seqlen).contiguous()
             assert self.activation in ["silu", "swish"]
@@ -336,6 +340,7 @@ class Mamba(nn.Module):
         dt, B, C = torch.split(x_db, [self.dt_rank, self.d_state, self.d_state], dim=-1)
         # Don't add dt_bias here
         dt = F.linear(dt, self.dt_proj.weight)  # (B d_inner)
+        dt = dt * self.dt_scaling # scaling factor
         A = -torch.exp(self.A_log.float())  # (d_inner, d_state)
 
         # SSM step

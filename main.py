@@ -7,6 +7,7 @@ import time
 import torch
 import torch.backends.cudnn as cudnn
 import json
+import matplotlib.pyplot as plt, math
 
 from pathlib import Path
 
@@ -469,6 +470,20 @@ def main(args):
 
         test_stats = evaluate(data_loader_val, model_ema.ema, device, amp_autocast)
         print(f"Accuracy of the ema network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
+
+        # scaling
+        scales = np.linspace(0.0, 1.0, 21)
+        ppls = []
+        for s in scales:
+            # 假設你在 Mamba block 裡把 scaling 參數取名為 dt_scaling
+            model.dt_scaling.data.fill_(s)
+            stats = evaluate(data_loader_val, model, device, amp_autocast)
+            ppls.append(math.exp(stats['loss']))
+        plt.plot(scales, ppls, marker='o')
+        plt.xlabel('s (∆t scaling)')
+        plt.ylabel('Perplexity')
+        plt.savefig(Path(args.output_dir) / 'dt_scaling_vs_ppl.png')
+
         return
     
     # log about
@@ -549,7 +564,7 @@ def main(args):
         if args.output_dir and utils.is_main_process():
             log_file_name = 'log_batch_size_'
             log_file_name += str(args.batch_size)
-            log_file_name += '.txt'
+            log_file_name += '.txt' 
             with (output_dir / log_file_name).open("a") as f:
                 f.write(json.dumps(log_stats) + "\n")
 

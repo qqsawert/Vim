@@ -40,6 +40,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: DistillationLoss,
     model.train(set_training_mode)
     metric_logger = utils.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
+    metric_logger.add_meter('max_gpu_mem', utils.SmoothedValue(window_size=1, fmt='{value:.1f}'))
     header = 'Epoch: [{}]'.format(epoch)
     print_freq = 10
     
@@ -113,10 +114,11 @@ def train_one_epoch(model: torch.nn.Module, criterion: DistillationLoss,
         # 在每個 batch 處理完後，取得當前 GPU 使用量
         current_gpu_mem = get_gpu_memory_used()
         # 更新最大值
-        max_gpu_mem = max(max_gpu_mem, current_gpu_mem)
+        max_gpu_mem_value = max(max_gpu_mem_value, current_gpu_mem)
 
         metric_logger.update(loss=loss_value)
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
+        metric_logger.update(max_gpu_mem=max_gpu_mem_value)
     
 
 
@@ -124,8 +126,10 @@ def train_one_epoch(model: torch.nn.Module, criterion: DistillationLoss,
     metric_logger.synchronize_between_processes()
     print("Averaged stats:", metric_logger)
 
+    
+
     stats = {k: meter.global_avg for k, meter in metric_logger.meters.items()}
-    stats['max_gpu_mem'] = max_gpu_mem
+
     return stats
 
 @torch.no_grad()
