@@ -18,7 +18,7 @@ import utils
 
 import signal
 import time
-ㄛmport subprocess
+import subprocess
 
 def get_gpu_memory_used():
     try:
